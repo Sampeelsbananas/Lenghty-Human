@@ -1,0 +1,170 @@
+<html>
+    <head>
+        <title>Tilemap</title>
+
+        <style>
+            #canvas {
+                border: 7px solid #172a61;
+            }
+        </style>
+    </head>
+    <body>
+
+        <canvas id="canvas" height="400px" width="400px" style="background-color: #25408f;"></canvas>
+
+        <script>
+//draw
+            const canvas = document.querySelector("canvas");
+            const ctx = canvas.getContext('2d');
+            const scale = 20;
+            const rows = canvas.height / scale;
+            const columns = canvas.width / scale;
+            
+            var snake;
+
+            (function setup () {
+                snake = new Snake();
+                fruit = new Fruit();
+
+                fruit.pickLocation();
+
+                window.setInterval(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    fruit.draw();
+                    
+                    snake.update();
+                    snake.draw();
+
+                if (snake.eat(fruit)) {
+                    fruit.pickLocation();
+                }
+                }, 100);
+            }());
+
+            window.addEventListener('keydown', ((evt) => {
+                console.log(evt);
+                const direction = evt.key.replace('Arrow', '');
+                snake.changeDirection(direction);
+            }))
+//snake
+            function Snake () {
+                this.x = 150;
+                this.y = 150;
+                this.xSpeed = scale / 0;
+                this.ySpeed = scale / 0;
+                this.total = 0;
+                this.tail = [];
+
+                this.draw = function() {
+                    ctx.fillStyle = "#ffb48f"
+
+                    for (let i = 0; i < this.tail.length; i++) {
+                        ctx.fillRect(this.tail[i].x, this.tail[i].y, scale, scale);
+                    }
+                    ctx.fillRect(this.x, this.y, scale, scale);
+
+
+                    ctx.fillStyle = "#050314"
+                    ctx.fillRect(this.x + 6, this.y + 6, scale - 18, scale - 16);
+                    ctx.fillRect(this.x + 11, this.y + 6, scale - 18, scale - 16);
+
+                    ctx.fillStyle = "#633424"
+                    ctx.fillRect(this.x + 20, this.y, scale - 40, scale - 24);
+
+                    ctx.fillStyle = "#140202"
+                    ctx.fillRect(this.x + 7.5, this.y + 12, 4, 1);
+
+                }
+
+                this.update = function() {
+                    for (let i = 0; i < this.tail.length - 1; i++) {
+                        this.tail[i] = this.tail[i+ 1];
+                    }
+
+                    this.tail[this.total - 1] = {x: this.x, y: this.y };
+
+
+
+                    this.x += this.xSpeed;
+                    this.y += this.ySpeed;
+
+                    if (this.x > canvas.width ) {
+                        this.x = 0;
+                    }
+                    
+                    if (this.y > canvas.height) {
+                        this.y = 0;
+                    }
+                    
+                    if (this.x < 0) {
+                        this.x = canvas.width;
+                    }
+                    
+                    if (this.y < 0) {
+                        this.y = canvas.height;
+                }
+            }
+
+            this.changeDirection = function(direction) {
+                switch(direction) {
+                    case 'Up':
+                        this.xSpeed = 0;
+                        this.ySpeed = -scale * 1;
+
+                    break;
+
+                    case 'Down':
+                        this.xSpeed = 0;
+                        this.ySpeed = scale * 1;
+
+                    break;
+                            
+                    case 'Left':
+                        this.xSpeed = -scale * 1;
+                        this.ySpeed = 0;
+
+                    break;
+                            
+                    case 'Right':
+                        this.xSpeed = scale * 1;
+                        this.ySpeed = 0;
+
+                    break;
+                }
+            }
+
+                this.eat = function(fruit) {
+                    if (this.x === fruit.x && this.y === fruit.y) {
+                        this.total++;
+                        return true;
+                    }
+
+                    return false;
+                }
+            }
+
+//fruit
+            function Fruit() {
+                this.x;
+                this.y;
+
+                this.pickLocation = function() {
+                    this.x = (Math.floor(Math.random() * rows - 1) + 1) * scale;
+                    this.y = (Math.floor(Math.random() * columns - 1) + 1) * scale;
+
+                }
+                this.draw = function() {
+                ctx.fillStyle = "#6bbd2d";
+                ctx.fillRect(this.x + 3, this.y - 0, 15, 15);
+                ctx.fillRect(this.x + 5.5, this.y - 5, 10, 10);
+
+                ctx.fillStyle = "#472612"
+                ctx.fillRect(this.x + 7, this.y + 4, 7, 7);
+
+                }
+            }
+
+        </script>
+
+    </body>
+</html>
